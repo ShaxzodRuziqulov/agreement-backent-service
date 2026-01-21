@@ -42,7 +42,7 @@ public class Contract extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ContractStatus status = ContractStatus.DRAFT;
+    private ContractStatus status = ContractStatus.WAITING_RENTER_INFO;
 
     private LocalDateTime acceptedAt;
 

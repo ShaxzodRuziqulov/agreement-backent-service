@@ -6,7 +6,9 @@ import com.example.agreement.exeption.UnauthorizedException;
 import com.example.agreement.exeption.UserNotFoundException;
 import com.example.agreement.repository.UserRepository;
 
+import com.example.agreement.service.dto.userDto.PassportUploadResponseDto;
 import com.example.agreement.service.dto.auth.UpdateProfileDto;
+import com.example.agreement.service.dto.userDto.PinflSubmitDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -30,8 +33,8 @@ public class UserService {
     private static final String UPLOAD_DIR = "uploads/passports/";
 
     public User getCurrentUser() {
-        String phoneNumber = SecurityContextHolder.getContext()
-                .getAuthentication().getName();
+        String phoneNumber = Objects.requireNonNull(SecurityContextHolder.getContext()
+                .getAuthentication()).getName();
 
         return userRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new UnauthorizedException("User not authenticated"));
@@ -69,42 +72,71 @@ public class UserService {
     }
 
     @Transactional
-    public User uploadPassportFront(MultipartFile file) throws IOException {
-        User user = getCurrentUser();
-        String filePath = saveFile(file, "front");
-        user.setPassportFrontPath(filePath);
-        user.setPassportStatus(VerificationStatus.PENDING);
-        return userRepository.save(user);
-    }
+    public PassportUploadResponseDto uploadPassport(MultipartFile file, String side) throws IOException {
 
-    @Transactional
-    public User uploadPassportBack(MultipartFile file) throws IOException {
         User user = getCurrentUser();
-        String filePath = saveFile(file, "back");
-        user.setPassportBackPath(filePath);
+
+        if (!"front".equalsIgnoreCase(side) && !"back".equalsIgnoreCase(side)) {
+            throw new IllegalStateException("side must be front or back");
+        }
+
+        if (file == null || file.isEmpty()) {
+            throw new IllegalStateException("File is required");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || (!contentType.equals("image/jpeg") && !contentType.equals("image/png"))) {
+            throw new IllegalStateException("Only JPG/PNG images are allowed");
+        }
+
+        long maxSize = 5L * 1024 * 1024; // 5MB
+        if (file.getSize() > maxSize) {
+            throw new IllegalStateException("File size must be <= 5MB");
+        }
+
+        String filePath = saveFile(file, side.toLowerCase());
+
+        if ("front".equalsIgnoreCase(side)) {
+            user.setPassportFrontPath(filePath);
+        } else {
+            user.setPassportBackPath(filePath);
+        }
+
         user.setPassportStatus(VerificationStatus.PENDING);
-        return userRepository.save(user);
+
+        User saved = userRepository.save(user);
+
+        return new PassportUploadResponseDto(
+                saved.getId(),
+                saved.getPassportFrontPath(),
+                saved.getPassportBackPath(),
+                saved.getPassportStatus()
+        );
     }
 
     private String saveFile(MultipartFile file, String side) throws IOException {
-        // Create directory if not exists
-        Path uploadPath = Paths.get(UPLOAD_DIR);
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
+
+        Path uploadPath = Paths.get(UPLOAD_DIR).normalize().toAbsolutePath();
+        Files.createDirectories(uploadPath);
+
+        String originalFilename = file.getOriginalFilename();
+        String extension = ".jpg";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
         }
 
-        // Generate unique filename
-        String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename != null ?
-                originalFilename.substring(originalFilename.lastIndexOf(".")) : ".jpg";
-        String filename = UUID.randomUUID().toString() + "_" + side + extension;
+        if (!extension.equals(".jpg") && !extension.equals(".jpeg") && !extension.equals(".png")) {
+            throw new IllegalStateException("Only .jpg, .jpeg, .png allowed");
+        }
 
-        // Save file
+        String filename = UUID.randomUUID() + "_" + side + extension;
+
         Path filePath = uploadPath.resolve(filename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        return UPLOAD_DIR + filename;
+        return "uploads/" + filename;
     }
+
 
     @Transactional
     public void deleteAccount() {

@@ -34,7 +34,10 @@ public class ContractScheduler {
         for (Contract contract : contracts) {
 
             int paymentDay = contract.getPaymentDay();
-            LocalDate dueDate = today.withDayOfMonth(paymentDay);
+
+            YearMonth ym = YearMonth.now();
+            int safeDay = Math.min(paymentDay, ym.lengthOfMonth());
+            LocalDate dueDate = ym.atDay(safeDay);
 
             if (today.isAfter(dueDate)) {
 

@@ -56,6 +56,7 @@ public class JwtService {
                 .compact();
     }
 
+
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String phoneNumber = extractPhoneNumber(token);
         return (phoneNumber.equals(userDetails.getUsername())) && !isTokenExpired(token);

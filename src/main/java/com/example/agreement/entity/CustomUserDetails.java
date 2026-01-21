@@ -1,37 +1,33 @@
-package com.example.agreement.util;
+package com.example.agreement.entity;
 
-import com.example.agreement.entity.User;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 @Getter
-@Setter
-public class UserPrincipal implements UserDetails {
+@RequiredArgsConstructor
+public class CustomUserDetails implements UserDetails {
 
-    private final Long id;
-
-    public UserPrincipal(User user) {
-        this.id = user.getId();
-    }
+    private final User user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        return List.of(new SimpleGrantedAuthority(user.getRole().name()));
     }
 
     @Override
     public String getPassword() {
-        return null;
+        return user.getPassword() == null ? "" : user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return id.toString();
+        return user.getPhoneNumber();
     }
 
     @Override
@@ -41,7 +37,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return user.getBlockedAt() == null;
     }
 
     @Override
@@ -53,4 +49,6 @@ public class UserPrincipal implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }
+

@@ -9,7 +9,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update   # prod uchun tavsiya etilmaydi (validate / none yaxshiroq)
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -18,25 +18,27 @@ spring:
 
   data:
     redis:
-      host: redis-18303.c262.us-east-1-3.ec2.cloud.redislabs.com
-      port: 18303
-      username: default
-      password: "dUKiYkdoqEYboTQGP62aBdmogK6eFZm4"
-      timeout: 60000
-      ssl:
-        enabled: true
+      host: localhost
+      port: 6379
+
 
 security:
   jwt:
     secret-key: "MWIxNzc4NDg0MjMzNDVmZGY4ZjgwZTBkMDU4ZWVjYWNiMTdkZjMwNTJhOTNmNDZiYWVmN2MyOGQyNjQ2MzdiMTc="
-    expiration-time: 86400000 # 24 soat (millisekund)
+    expiration-time: 86400000
 
   otp:
-    expiration-time: 300      # 5 daqiqa (sekund)
+    expiration-time: 300
     length: 6
     max-attempts: 3
 
   sms:
-    provider: eskiz           # eskiz | playmobile
+    provider: dev   # dev | eskiz
     api-url: https://notify.eskiz.uz/api
-    api-token: your-eskiz-token
+
+    # Eskiz login (PROD uchun kerak)
+    eskiz-email: "YOUR_EMAIL"
+    eskiz-password: "YOUR_PASSWORD"
+
+    # Eskiz sender (kabinetdan beriladi)
+    eskiz-from: "4546"

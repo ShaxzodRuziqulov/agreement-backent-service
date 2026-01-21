@@ -23,40 +23,48 @@ public class SmsService {
     @Value("${security.sms.api-url}")
     private String apiUrl;
 
-    @Value("${security.sms.api-token}")
-    private String apiToken;
+    @Value("${security.sms.eskiz-email:}")
+    private String eskizEmail;
+
+    @Value("${security.sms.eskiz-password:}")
+    private String eskizPassword;
+
+    @Value("${security.sms.eskiz-from:4546}")
+    private String eskizFrom;
 
     public void sendOtp(String phoneNumber, String code) {
-        try {
-            String message = String.format(
-                    "Sizning tasdiqlash kodingiz: %s\nKodni hech kimga bermang!",
-                    code
-            );
+        String message = String.format(
+                "Sizning tasdiqlash kodingiz: %s\nKodni hech kimga bermang!",
+                code
+        );
 
-            if ("eskiz".equalsIgnoreCase(provider)) {
-                sendViaEskiz(phoneNumber, message);
-            } else {
-                // Fallback or other providers
-                log.warn("SMS provider not configured. OTP: {} for {}", code, phoneNumber);
-            }
-        } catch (Exception e) {
-            log.error("Failed to send SMS to {}: {}", phoneNumber, e.getMessage());
-            // Don't throw exception - allow OTP to work even if SMS fails
+        if ("dev".equalsIgnoreCase(provider)) {
+            log.info("✅ DEV OTP for {} = {}", phoneNumber, code);
+            return;
         }
+
+        if ("eskiz".equalsIgnoreCase(provider)) {
+            sendViaEskiz(phoneNumber, message);
+            return;
+        }
+
+        log.warn("❗ Unknown SMS provider: {}. OTP for {} = {}", provider, phoneNumber, code);
     }
 
     private void sendViaEskiz(String phoneNumber, String message) {
         try {
+            String token = loginEskizAndGetToken();
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Authorization", "Bearer " + apiToken);
+            headers.setBearerAuth(token);
 
-            Map<String, String> request = new HashMap<>();
+            Map<String, Object> request = new HashMap<>();
             request.put("mobile_phone", normalizePhoneNumber(phoneNumber));
             request.put("message", message);
-            request.put("from", "4546");
+            request.put("from", eskizFrom);
 
-            HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
 
             ResponseEntity<String> response = restTemplate.exchange(
                     apiUrl + "/message/sms/send",
@@ -65,33 +73,55 @@ public class SmsService {
                     String.class
             );
 
-            if (response.getStatusCode().is2xxSuccessful()) {
-                log.info("SMS sent successfully to {}", phoneNumber);
-            } else {
-                log.error("Failed to send SMS. Status: {}", response.getStatusCode());
-            }
+            log.info("Eskiz SMS status={} body={}", response.getStatusCode(), response.getBody());
+
         } catch (Exception e) {
-            log.error("Error sending SMS via Eskiz: {}", e.getMessage());
+            log.error("❌ Error sending SMS via Eskiz: {}", e.getMessage());
         }
+    }
+
+    private String loginEskizAndGetToken() {
+        if (eskizEmail == null || eskizEmail.isBlank() || eskizPassword == null || eskizPassword.isBlank()) {
+            throw new RuntimeException("Eskiz email/password not configured in application.yml");
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> body = new HashMap<>();
+        body.put("email", eskizEmail);
+        body.put("password", eskizPassword);
+
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<Map> response = restTemplate.postForEntity(
+                apiUrl + "/auth/login",
+                entity,
+                Map.class
+        );
+
+        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+            throw new RuntimeException("Eskiz login failed: " + response.getStatusCode());
+        }
+
+        Object dataObj = response.getBody().get("data");
+        if (!(dataObj instanceof Map)) {
+            throw new RuntimeException("Eskiz login response invalid: data not found");
+        }
+
+        Map data = (Map) dataObj;
+        Object tokenObj = data.get("token");
+        if (tokenObj == null) {
+            throw new RuntimeException("Eskiz token not found in response");
+        }
+
+        return tokenObj.toString();
     }
 
     private String normalizePhoneNumber(String phoneNumber) {
-        // Remove all non-digit characters
         String cleaned = phoneNumber.replaceAll("[^0-9]", "");
-
-        // If starts with 998, return as is
-        if (cleaned.startsWith("998")) {
-            return cleaned;
-        }
-
-        // If starts with 0, replace with 998
-        if (cleaned.startsWith("0")) {
-            return "998" + cleaned.substring(1);
-        }
-
-        // Otherwise, add 998
+        if (cleaned.startsWith("998")) return cleaned;
+        if (cleaned.startsWith("0")) return "998" + cleaned.substring(1);
         return "998" + cleaned;
     }
 }
-
-

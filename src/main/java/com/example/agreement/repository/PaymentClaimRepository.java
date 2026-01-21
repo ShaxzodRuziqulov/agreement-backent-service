@@ -12,5 +12,5 @@ import java.util.List;
 public interface PaymentClaimRepository extends JpaRepository<PaymentClaim, Long> {
     List<PaymentClaim> findByContractIdOrderByPeriodDesc(Long contractId);
 
-    boolean existsByContractIdAndPeriodAndStatus(Long contractId, YearMonth period, PaymentClaimStatus status);
+    boolean existsByContractIdAndPeriod(Long contractId, YearMonth period);
 }
