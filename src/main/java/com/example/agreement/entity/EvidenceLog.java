@@ -1,7 +1,6 @@
 package com.example.agreement.entity;
 
 import com.example.agreement.entity.enumerated.EvidenceAction;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

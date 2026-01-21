@@ -5,10 +5,8 @@ import com.example.agreement.entity.enumerated.VerificationStatus;
 import com.example.agreement.exeption.UnauthorizedException;
 import com.example.agreement.exeption.UserNotFoundException;
 import com.example.agreement.repository.UserRepository;
-
-import com.example.agreement.service.dto.userDto.PassportUploadResponseDto;
 import com.example.agreement.service.dto.auth.UpdateProfileDto;
-import com.example.agreement.service.dto.userDto.PinflSubmitDto;
+import com.example.agreement.service.dto.userDto.PassportUploadResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;

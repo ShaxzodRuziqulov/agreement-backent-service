@@ -41,8 +41,8 @@ public class ContractScheduler {
 
             if (today.isAfter(dueDate)) {
 
-                boolean paid = paymentClaimRepository.existsByContractIdAndPeriodAndStatus(
-                        contract.getId(), YearMonth.now(), PaymentClaimStatus.CONFIRMED
+                boolean paid = paymentClaimRepository.existsByContractIdAndPeriod(
+                        contract.getId(), YearMonth.now()
                 );
 
                 if (!paid) {

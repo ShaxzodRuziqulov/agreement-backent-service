@@ -1,6 +1,5 @@
 package com.example.agreement.service;
 
-import com.example.agreement.entity.OtpCode;
 import com.example.agreement.entity.User;
 import com.example.agreement.entity.enumerated.OtpType;
 import com.example.agreement.exeption.UserAlreadyExistsException;
