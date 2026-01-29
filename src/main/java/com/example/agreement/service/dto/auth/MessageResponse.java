@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class MessageResponse {
     private String message;
     private Boolean success;
+    private String otp;
 }

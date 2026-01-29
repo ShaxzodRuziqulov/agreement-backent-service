@@ -16,6 +16,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByClaimIdOrderByCreatedAtDesc(Long claimId);
 
+    List<Payment> findByPayerUserIdOrPayeeUserIdOrderByCreatedAtDesc(Long payerUserId, Long payeeUserId);
+
     @Query("""
            select coalesce(sum(p.amount), 0)
            from Payment p

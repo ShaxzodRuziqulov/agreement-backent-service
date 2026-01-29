@@ -20,13 +20,7 @@ public class AuthController {
      */
     @PostMapping("/login/request")
     public ResponseEntity<MessageResponse> requestLoginOtp(@Valid @RequestBody LoginRequestDto request) {
-        authService.requestLoginOtp(request);
-        return ResponseEntity.ok(
-                MessageResponse.builder()
-                        .message("OTP sent successfully to " + request.getPhoneNumber())
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(authService.requestLoginOtp(request));
     }
 
     /**
@@ -45,13 +39,7 @@ public class AuthController {
      */
     @PostMapping("/register/request")
     public ResponseEntity<MessageResponse> requestRegistrationOtp(@Valid @RequestBody RegistrationRequestDto request) {
-        authService.requestRegistrationOtp(request);
-        return ResponseEntity.ok(
-                MessageResponse.builder()
-                        .message("OTP sent successfully to " + request.getPhoneNumber())
-                        .success(true)
-                        .build()
-        );
+        return ResponseEntity.ok(authService.requestRegistrationOtp(request));
     }
 
     /**

@@ -48,4 +48,9 @@ public class PaymentController {
     public ResponseEntity<PaymentResponseDto> get(@PathVariable Long paymentId) {
         return ResponseEntity.ok(paymentService.getPayment(paymentId));
     }
+
+    @GetMapping("/my")
+    public ResponseEntity<java.util.List<PaymentResponseDto>> myPayments() {
+        return ResponseEntity.ok(paymentService.getMyPayments());
+    }
 }

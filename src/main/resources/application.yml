@@ -31,14 +31,15 @@ security:
     expiration-time: 300
     length: 6
     max-attempts: 3
+    expose-in-response: true
 
   sms:
     provider: dev   # dev | eskiz
     api-url: https://notify.eskiz.uz/api
 
     # Eskiz login (PROD uchun kerak)
-    eskiz-email: "YOUR_EMAIL"
-    eskiz-password: "YOUR_PASSWORD"
+    eskiz-email: "janobprizident@gmail.com"
+    eskiz-password: "KnGO1CXHj#biJyzF"
 
     # Eskiz sender (kabinetdan beriladi)
     eskiz-from: "4546"
@@ -62,4 +63,11 @@ app:
     uzum:
       redirect-base: "https://payments.local/uzum"
       secret: "uzum_secret"
-
+telegram:
+  bot:
+    token: "8246611397:AAHZrjru8PAGMfait4SrqviOj8H5GgMB3yk"
+    username: "@bitimchibot"
+    enabled: true
+    poll-interval-ms: 2000
+    poll-timeout-seconds: 20
+  backend-url: "http://localhost:8081"

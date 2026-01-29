@@ -239,6 +239,14 @@ public class PaymentService {
         return toDto(payment);
     }
 
+    public java.util.List<PaymentResponseDto> getMyPayments() {
+        Long userId = SecurityUtils.currentUserId();
+        return paymentRepository.findByPayerUserIdOrPayeeUserIdOrderByCreatedAtDesc(userId, userId)
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
     private PaymentClaim getClaim(Long claimId) {
         return claimRepository.findById(claimId)
                 .orElseThrow(() -> new NotFoundException("Claim not found: " + claimId));

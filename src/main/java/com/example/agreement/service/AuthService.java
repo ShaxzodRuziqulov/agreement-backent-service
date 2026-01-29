@@ -6,8 +6,10 @@ import com.example.agreement.exeption.UserAlreadyExistsException;
 import com.example.agreement.exeption.UserNotFoundException;
 import com.example.agreement.repository.UserRepository;
 import com.example.agreement.service.dto.auth.*;
+import com.example.agreement.util.PhoneUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,21 +23,30 @@ public class AuthService {
     private final OtpService otpService;
     private final JwtService jwtService;
 
-    public void requestLoginOtp(LoginRequestDto request) {
-        String phoneNumber = normalizePhoneNumber(request.getPhoneNumber());
+    @Value("${security.otp.expose-in-response:false}")
+    private boolean exposeOtpInResponse;
+
+    public MessageResponse requestLoginOtp(LoginRequestDto request) {
+        String phoneNumber = PhoneUtils.normalize(request.getPhoneNumber());
 
         if (!userRepository.existsByPhoneNumber(phoneNumber)) {
             throw new UserNotFoundException("User not found. Please register first.");
         }
 
-        otpService.generateAndSendOtp(phoneNumber, OtpType.LOGIN);
+        String code = otpService.generateAndSendOtp(phoneNumber, OtpType.LOGIN);
 
         log.info("Login OTP requested for: {}", phoneNumber);
+
+        return MessageResponse.builder()
+                .message("OTP sent successfully to " + request.getPhoneNumber())
+                .success(true)
+                .otp(exposeOtpInResponse ? code : null)
+                .build();
     }
 
     @Transactional
     public AuthResponseDto verifyLoginOtp(VerifyOtpDto request) {
-        String phoneNumber = normalizePhoneNumber(request.getPhoneNumber());
+        String phoneNumber = PhoneUtils.normalize(request.getPhoneNumber());
 
         otpService.verifyOtp(phoneNumber, request.getCode(), OtpType.LOGIN);
 
@@ -57,21 +68,27 @@ public class AuthService {
                 .build();
     }
 
-    public void requestRegistrationOtp(RegistrationRequestDto request) {
-        String phoneNumber = normalizePhoneNumber(request.getPhoneNumber());
+    public MessageResponse requestRegistrationOtp(RegistrationRequestDto request) {
+        String phoneNumber = PhoneUtils.normalize(request.getPhoneNumber());
 
         if (userRepository.existsByPhoneNumber(phoneNumber)) {
             throw new UserAlreadyExistsException("User with this phone number already exists");
         }
 
-        otpService.generateAndSendOtp(phoneNumber, OtpType.REGISTRATION);
+        String code = otpService.generateAndSendOtp(phoneNumber, OtpType.REGISTRATION);
 
         log.info("Registration OTP requested for: {}", phoneNumber);
+
+        return MessageResponse.builder()
+                .message("OTP sent successfully to " + request.getPhoneNumber())
+                .success(true)
+                .otp(exposeOtpInResponse ? code : null)
+                .build();
     }
 
     @Transactional
     public AuthResponseDto verifyRegistrationOtp(VerifyRegistrationDto request) {
-        String phoneNumber = normalizePhoneNumber(request.getPhoneNumber());
+        String phoneNumber = PhoneUtils.normalize(request.getPhoneNumber());
 
         otpService.verifyOtp(phoneNumber, request.getCode(), OtpType.REGISTRATION);
 
@@ -104,17 +121,4 @@ public class AuthService {
                 .build();
     }
 
-    private String normalizePhoneNumber(String phoneNumber) {
-        String cleaned = phoneNumber.replaceAll("[^0-9]", "");
-
-        if (cleaned.startsWith("998")) {
-            return cleaned;
-        }
-
-        if (cleaned.startsWith("0")) {
-            return "998" + cleaned.substring(1);
-        }
-
-        return "998" + cleaned;
-    }
 }

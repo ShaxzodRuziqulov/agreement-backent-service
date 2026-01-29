@@ -6,6 +6,7 @@ import com.example.agreement.exeption.InvalidOtpException;
 import com.example.agreement.exeption.OtpExpiredException;
 import com.example.agreement.exeption.TooManyAttemptsException;
 import com.example.agreement.repository.SmsOtpRepository;
+import com.example.agreement.util.PhoneUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,18 +39,9 @@ public class OtpService {
     @Value("${security.otp.max-attempts}")
     private int maxAttempts;
 
-    private String normalizePhoneNumber(String phoneNumber) {
-        String cleaned = phoneNumber.replaceAll("[^0-9]", "");
-
-        if (cleaned.startsWith("998")) return cleaned;
-        if (cleaned.startsWith("0")) return "998" + cleaned.substring(1);
-        return "998" + cleaned;
-    }
-
     @Transactional
-    public void generateAndSendOtp(String phoneNumber, OtpType type) {
-
-        phoneNumber = normalizePhoneNumber(phoneNumber); // ✅ ADD
+    public String generateOtp(String phoneNumber, OtpType type) {
+        phoneNumber = PhoneUtils.normalize(phoneNumber);
 
         String rateLimitKey = "otp:ratelimit:" + phoneNumber;
         if (Boolean.TRUE.equals(redisTemplate.hasKey(rateLimitKey))) {
@@ -75,16 +67,20 @@ public class OtpService {
         redisTemplate.opsForValue()
                 .set(rateLimitKey, "1", 60, TimeUnit.SECONDS);
 
-        smsService.sendOtp(phoneNumber, code);
-
         log.info("OTP generated for {}", phoneNumber);
+        return code;
     }
 
+    @Transactional
+    public String generateAndSendOtp(String phoneNumber, OtpType type) {
+        String code = generateOtp(phoneNumber, type);
+        smsService.sendOtp(phoneNumber, code);
+        return code;
+    }
 
     @Transactional
     public void verifyOtp(String phoneNumber, String code, OtpType type) {
-
-        phoneNumber = normalizePhoneNumber(phoneNumber); // ✅ ADD
+        phoneNumber = PhoneUtils.normalize(phoneNumber);
 
         OtpCode otp = otpRepository.findLatestValidOtp(phoneNumber, type)
                 .orElseThrow(() -> new InvalidOtpException("No valid OTP found"));
@@ -113,7 +109,6 @@ public class OtpService {
 
         log.info("OTP verified for {}", phoneNumber);
     }
-
 
     private String generateOtpCode() {
         StringBuilder code = new StringBuilder();

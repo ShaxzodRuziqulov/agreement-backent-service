@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import com.example.agreement.util.PhoneUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,8 +39,10 @@ public class SmsService {
                 code
         );
 
+        // Log OTP for visibility even when SMS is sent
+        log.info("OTP for {} = {}", phoneNumber, code);
+
         if ("dev".equalsIgnoreCase(provider)) {
-            log.info("✅ DEV OTP for {} = {}", phoneNumber, code);
             return;
         }
 
@@ -119,9 +122,6 @@ public class SmsService {
     }
 
     private String normalizePhoneNumber(String phoneNumber) {
-        String cleaned = phoneNumber.replaceAll("[^0-9]", "");
-        if (cleaned.startsWith("998")) return cleaned;
-        if (cleaned.startsWith("0")) return "998" + cleaned.substring(1);
-        return "998" + cleaned;
+        return PhoneUtils.normalize(phoneNumber);
     }
 }
