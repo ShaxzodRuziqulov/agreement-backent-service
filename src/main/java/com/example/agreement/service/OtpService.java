@@ -62,7 +62,7 @@ public class OtpService {
         String codeHash = BCrypt.hashpw(code, BCrypt.gensalt());
 
         OtpCode otp = OtpCode.builder()
-                .phoneNumber(phoneNumber) // ✅ normalized bo'ladi
+                .phoneNumber(phoneNumber)
                 .type(type)
                 .codeHash(codeHash)
                 .attempts(0)

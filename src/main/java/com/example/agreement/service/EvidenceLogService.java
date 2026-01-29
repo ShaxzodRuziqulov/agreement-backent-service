@@ -44,10 +44,10 @@ public class EvidenceLogService {
         snapshot.put("ownerId", contract.getOwner().getId());
         snapshot.put("renterId", contract.getRenter().getId());
         snapshot.put("assetId", contract.getAsset().getId());
-        snapshot.put("paymentAmount", contract.getPaymentAmount());
-        snapshot.put("paymentPeriod", contract.getPaymentPeriod());
-        snapshot.put("paymentDay", contract.getPaymentDay());
-        snapshot.put("acceptedAt", contract.getAcceptedAt());
+        snapshot.put("billingAmount", contract.getBillingAmount());
+        snapshot.put("billingUnit", contract.getBillingUnit());
+        snapshot.put("prepaidPeriods", contract.getPrepaidPeriods());
+        snapshot.put("startAt", contract.getStartAt());
 
         log.setPayloadSnapshot(snapshot);
 

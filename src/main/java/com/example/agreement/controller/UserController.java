@@ -23,10 +23,6 @@ public class UserController {
 
     private final UserService userService;
 
-    /**
-     * Get current user profile
-     * GET /api/v1/users/me
-     */
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<User> getCurrentUser() {
@@ -34,10 +30,6 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    /**
-     * Update user profile
-     * PUT /api/v1/users/me
-     */
     @PutMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<User> updateProfile(@Valid @RequestBody UpdateProfileDto dto) {
@@ -52,10 +44,6 @@ public class UserController {
         return ResponseEntity.ok(userService.uploadPassport(file, side));
     }
 
-    /**
-     * Delete account
-     * DELETE /api/v1/users/me
-     */
     @DeleteMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponse> deleteAccount() {
@@ -68,10 +56,6 @@ public class UserController {
         );
     }
 
-    /**
-     * Get user by ID (Admin only)
-     * GET /api/v1/users/{id}
-     */
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {

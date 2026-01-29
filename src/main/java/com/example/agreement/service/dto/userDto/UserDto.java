@@ -1,5 +1,6 @@
 package com.example.agreement.service.dto.userDto;
 
+import com.example.agreement.entity.enumerated.VerificationStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +14,7 @@ public class UserDto {
     private String lastName;
     private String phoneNumber;
     private String pinfl;
+    private VerificationStatus pinflStatus;
     private boolean blocked;
     private String blockReason;
     private LocalDateTime blockedAt;

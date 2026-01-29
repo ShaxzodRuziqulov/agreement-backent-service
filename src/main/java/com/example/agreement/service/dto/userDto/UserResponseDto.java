@@ -16,5 +16,6 @@ public class UserResponseDto {
 
     private UserBlockType blockType;
     private VerificationStatus passportStatus;
+    private VerificationStatus pinflStatus;
 }
 

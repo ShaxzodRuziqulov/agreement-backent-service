@@ -56,7 +56,6 @@ public class UserService {
         }
 
         if (dto.getPinfl() != null) {
-            // Check if PINFL already exists
             userRepository.findByPinfl(dto.getPinfl())
                     .ifPresent(existingUser -> {
                         if (!existingUser.getId().equals(user.getId())) {
@@ -64,6 +63,8 @@ public class UserService {
                         }
                     });
             user.setPinfl(dto.getPinfl());
+            user.setPinflStatus(VerificationStatus.PENDING);
+            user.setPinflVerifiedAt(null);
         }
 
         return userRepository.save(user);

@@ -1,5 +1,6 @@
 package com.example.agreement.service.dto.contractDto;
 
+import com.example.agreement.entity.enumerated.BillingUnit;
 import com.example.agreement.entity.enumerated.ContractStatus;
 import com.example.agreement.entity.enumerated.PaymentPeriod;
 import lombok.Getter;
@@ -18,12 +19,12 @@ public class ContractResponseDto {
     private Long ownerId;
     private Long renterId;
 
-    private BigDecimal paymentAmount;
-    private PaymentPeriod paymentPeriod;
-    private Integer paymentDay;
+    private BigDecimal billingAmount;
+    private BillingUnit billingUnit;
+    private Integer prepaidPeriods;
 
     private ContractStatus status;
-    private LocalDateTime acceptedAt;
+    private LocalDateTime startAt;
 
     private String jurisdiction;
     private String language;

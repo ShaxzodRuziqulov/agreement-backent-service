@@ -42,3 +42,24 @@ security:
 
     # Eskiz sender (kabinetdan beriladi)
     eskiz-from: "4546"
+app:
+  payments:
+    click:
+      redirect-base: "https://payments.local/click"
+      secret: "click_secret"
+    payme:
+      redirect-base: "https://payments.local/payme"
+      secret: "payme_secret"
+    alif:
+      redirect-base: "https://payments.local/alif"
+      secret: "alif_secret"
+    xazna:
+      redirect-base: "https://payments.local/xazna"
+      secret: "xazna_secret"
+    paynet:
+      redirect-base: "https://payments.local/paynet"
+      secret: "paynet_secret"
+    uzum:
+      redirect-base: "https://payments.local/uzum"
+      secret: "uzum_secret"
+

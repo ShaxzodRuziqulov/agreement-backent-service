@@ -50,6 +50,13 @@ public class AdminUserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public void promoteToAdmin(Long userId) {
+        User user = getUser(userId);
+        user.setRole(User.UserRole.ADMIN);
+        userRepository.save(user);
+    }
+
     private User getUser(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));

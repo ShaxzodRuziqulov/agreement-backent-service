@@ -31,6 +31,14 @@ public class User extends BaseEntity implements UserDetails {
     private String lastName;
 
     private String pinfl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pinfl_status")
+    private VerificationStatus pinflStatus = VerificationStatus.NOT_PROVIDED;
+
+    @Column(name = "pinfl_verified_at")
+    private LocalDateTime pinflVerifiedAt;
+
     private String passportBackPath;
     private String passportFrontPath;
     @Enumerated(EnumType.STRING)

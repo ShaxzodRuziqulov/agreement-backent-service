@@ -6,11 +6,13 @@ import com.example.agreement.service.dto.request.SuspendContractRequest;
 import com.example.agreement.service.dto.userDto.BlockUserRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     private final AdminUserService userService;
@@ -31,6 +33,12 @@ public class AdminController {
     @PostMapping("/users/{id}/verify-passport")
     public ResponseEntity<Void> verifyPassport(@PathVariable Long id) {
         userService.verifyPassport(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/users/{id}/promote-admin")
+    public ResponseEntity<Void> promoteAdmin(@PathVariable Long id) {
+        userService.promoteToAdmin(id);
         return ResponseEntity.ok().build();
     }
 

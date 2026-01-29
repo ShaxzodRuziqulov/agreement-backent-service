@@ -1,5 +1,6 @@
 package com.example.agreement.entity;
 
+import com.example.agreement.entity.enumerated.BillingUnit;
 import com.example.agreement.entity.enumerated.ContractStatus;
 import com.example.agreement.entity.enumerated.PaymentPeriod;
 import jakarta.persistence.*;
@@ -7,7 +8,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "contracts")
 @Getter
@@ -30,21 +33,21 @@ public class Contract extends BaseEntity {
     @JoinColumn(name = "asset_id", nullable = false)
     private Asset asset;
 
-    @Column(nullable = false, precision = 15, scale = 2)
-    private BigDecimal paymentAmount;
+    @Column(name = "billing_amount", nullable = false, precision = 15, scale = 2)
+    private BigDecimal billingAmount;
+
+    @Column(name = "billing_unit", nullable = false)
+    private BillingUnit billingUnit;
+
+    @Column(name = "prepaid_periods", nullable = false)
+    private Integer prepaidPeriods = 1;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentPeriod paymentPeriod;
+    private ContractStatus status = ContractStatus.DRAFT;
 
-    @Column(nullable = false)
-    private Integer paymentDay;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ContractStatus status = ContractStatus.WAITING_RENTER_INFO;
-
-    private LocalDateTime acceptedAt;
+    @Column(name = "start_at")
+    private LocalDateTime startAt;
 
     @Column(nullable = false, length = 5)
     private String jurisdiction = "UZ";
