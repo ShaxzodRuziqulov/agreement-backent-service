@@ -36,6 +36,7 @@ public class Contract extends BaseEntity {
     @Column(name = "billing_amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal billingAmount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "billing_unit", nullable = false)
     private BillingUnit billingUnit;
 
